@@ -1,19 +1,24 @@
 package com.factorypal.demo.controller;
 
 
+import com.factorypal.demo.model.SpeedEntry;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+
 import static org.hamcrest.core.Is.is;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,32 +32,30 @@ public class SpeedControllerTest {
     @MockBean
     private SpeedController arrivalController;
 
-    @Test
-    public void getArrivals() throws Exception {
-//        Arrival arrival = new Arrival();
-//        arrival.setCity("Yerevan");
-//
-//        List<Arrival> allArrivals = singletonList(arrival);
-//
-//        given(arrivalController.getAllArrivals()).willReturn(allArrivals);
-//
-//        mvc.perform(get(VERSION + ARRIVAL + "all")
-//                            .contentType(APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(1)))
-//                .andExpect(jsonPath("$[0].city", is(arrival.getCity())));
+    @BeforeEach
+    public void init() throws Exception {
+        SpeedEntry speedEntry = new SpeedEntry(10L, 100.0, System.currentTimeMillis());
+
+        mvc.perform(
+                post("/linespeed").content(asJsonString(speedEntry)).contentType(MediaType.APPLICATION_JSON)
+        );
     }
 
     @Test
-    public void getArrivalsById() throws Exception {
-//        Arrival arrival = new Arrival();
-//        arrival.setCity("Yerevan");
-//
-//        given(arrivalController.getArrivalById(arrival.getId())).willReturn(arrival);
-//
-//        mvc.perform(get(VERSION + ARRIVAL + arrival.getId())
-//                            .contentType(APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("city", is(arrival.getCity())));
+    public void getMetrics() throws Exception {
+        mvc.perform(get("/metrics").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("$[0].line_id", is(10)));
     }
+
+    public static String asJsonString(final Object obj) {
+        try {
+            final ObjectMapper mapper = new ObjectMapper();
+            final String jsonContent = mapper.writeValueAsString(obj);
+            return jsonContent;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

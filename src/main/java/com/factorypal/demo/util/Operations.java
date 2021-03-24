@@ -1,15 +1,15 @@
 package com.factorypal.demo.util;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Calendar;
 
 public class Operations {
     public static long compareTwoTimeStamps(java.sql.Timestamp currentTime, java.sql.Timestamp oldTime) {
-        long milliseconds1 = oldTime.getTime();
-        long milliseconds2 = currentTime.getTime();
+        long milliseconds1 = currentTime.getTime();
+        long milliseconds2 = oldTime.getTime();
 
         long diff = milliseconds2 - milliseconds1;
 
@@ -31,5 +31,13 @@ public class Operations {
         Timestamp timestamp = getCurrentTimestamp(ZoneId.of("UTC"));
 
         return getTimestampInterval(timestamp, minutes);
+    }
+
+    public static Timestamp truncateTimestamp(Timestamp timestamp) {
+        Calendar cal = Calendar.getInstance(); // locale-specific
+        cal.setTime(timestamp);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return new Timestamp(cal.getTimeInMillis());
     }
 }

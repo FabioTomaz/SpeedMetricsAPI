@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Metrics {
-    private Double min;
+public class AggregatedMetrics {
     private Double max;
-    private Double avg;
+    private Double sum;
+    private Double min;
+    private int total;
 }
