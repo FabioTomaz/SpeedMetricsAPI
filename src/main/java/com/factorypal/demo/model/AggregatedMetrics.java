@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AggregatedMetrics {
-    private Double max;
-    private Double sum;
-    private Double min;
+    private double min;
+    private double max;
+    private double sum;
     private int total;
 }

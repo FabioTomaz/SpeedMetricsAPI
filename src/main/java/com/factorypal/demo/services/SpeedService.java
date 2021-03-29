@@ -22,7 +22,7 @@ public class SpeedService {
         this.period = period;
     }
 
-    public synchronized void addEntry(SpeedEntry speedEntry) {
+    public synchronized void addSpeedEntry(SpeedEntry speedEntry) {
         if (!lineMetrics.containsKey(speedEntry.getLine_id())) {
             lineMetrics.put(speedEntry.getLine_id(), new LineMetricsCalculator());
         }
@@ -33,20 +33,20 @@ public class SpeedService {
         );
     }
 
-    public synchronized List<LineMetrics> getMetrics() {
+    public synchronized List<LineMetrics> getLineMetrics() {
         return this.lineMetrics.keySet().stream()
                 .map(lineMetricsCalculator -> new LineMetrics(
                         lineMetricsCalculator,
-                        this.getMetrics(lineMetricsCalculator)
+                        this.getLineMetrics(lineMetricsCalculator)
                 )).collect(Collectors.toList());
     }
 
-    public synchronized Metrics getMetrics(long lineId) {
-        if(!lineMetrics.containsKey(lineId)) {
-            return null;
-        }
+    public synchronized Metrics getLineMetrics(long lineId) {
+//        if(!lineMetrics.containsKey(lineId)) {
+//            return null;
+//        }
 
         Timestamp[] interval = Operations.getTimestampInterval(period);
-        return lineMetrics.get(lineId).getMetrics(interval[0], interval[1]);
+        return lineMetrics.getOrDefault(lineId, new LineMetricsCalculator()).getMetrics(interval[0], interval[1]);
     }
 }

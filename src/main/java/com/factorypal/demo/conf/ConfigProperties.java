@@ -14,16 +14,16 @@ import java.util.List;
 @Validated
 public class ConfigProperties {
 
-    private List<Integer> ids;
+    private List<Long> ids;
 
     @Min(0)
     private int periodMinutes;
 
-    public List<Integer> getIds() {
+    public List<Long> getIds() {
         return ids;
     }
 
-    public void setIds(List<Integer> ids) {
+    public void setIds(List<Long> ids) {
         this.ids = ids;
     }
 

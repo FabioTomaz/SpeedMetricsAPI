@@ -1,6 +1,9 @@
 package com.factorypal.demo.controller;
 
 import com.factorypal.demo.SpeedMertricsServiceApplication;
+import com.factorypal.demo.exceptions.IDNotRegisteredException;
+import com.factorypal.demo.exceptions.InvalidTimestampException;
+import com.factorypal.demo.exceptions.StatusException;
 import com.factorypal.demo.model.ErrorResponse;
 import com.factorypal.demo.model.LineMetrics;
 import com.factorypal.demo.model.SpeedEntry;
@@ -18,16 +21,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.List;
 
-import static com.factorypal.demo.util.Constants.KNOWN_IDS;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -37,62 +39,88 @@ public class SpeedController {
 
     private final Logger logger = LoggerFactory.getLogger(SpeedMertricsServiceApplication.class);
 
-    private final SpeedService speedService;
+    private SpeedService speedService;
 
     @Value("${appconf.periodMinutes}")
     private int periodMinutes;
 
-    public SpeedController() {
+    @Value("#{'${appconf.ids}'.split(',')}")
+    private List<Long> knownIds;
+
+    @PostConstruct
+    public void init() {
         this.speedService = new SpeedService(periodMinutes);
     }
 
     @GetMapping("/metrics")
-    public ResponseEntity<List<LineMetrics>> getMetrics() {
-        return new ResponseEntity<>(this.speedService.getMetrics(), OK);
+    public ResponseEntity<List<LineMetrics>> getMetrics() throws Exception {
+        return new ResponseEntity<>(this.speedService.getLineMetrics(), OK);
     }
 
     @GetMapping("/metrics/{lineid}")
     public ResponseEntity<?> getMetrics(@PathVariable Long lineid) {
-        if (!KNOWN_IDS.contains(lineid)) {
-            return new ResponseEntity<>(NOT_FOUND);
+        if (!knownIds.contains(lineid)) {
+            throw new IDNotRegisteredException(lineid);
         }
 
-        return new ResponseEntity<>(this.speedService.getMetrics(lineid), OK);
+        return new ResponseEntity<>(this.speedService.getLineMetrics(lineid), OK);
     }
 
     @PostMapping("/linespeed")
     public ResponseEntity<?> newSpeedEntry(@RequestBody SpeedEntry entry) {
-        if (!KNOWN_IDS.contains(entry.getLine_id())) {
-            return new ResponseEntity<>("Unable to find resource", NOT_FOUND);
+        if (!knownIds.contains(entry.getLine_id())) {
+            throw new IDNotRegisteredException(entry.getLine_id());
         }
 
         Timestamp timestamp = new Timestamp(entry.getTimestamp());
         Timestamp currentTimestamp = Operations.getCurrentTimestamp(ZoneId.of("UTC"));
 
-        logger.info("CURRENT TIMESTAMP: " + currentTimestamp.toString());
-
         long minutesDiff = Operations.compareTwoTimeStamps(timestamp, currentTimestamp);
-
         if (minutesDiff > periodMinutes || minutesDiff < 0) {
-            throw new ResponseStatusException(NO_CONTENT, "Timestamp must be no more than 60 minutes from now");
+            throw new InvalidTimestampException(currentTimestamp.getTime(), timestamp.getTime(), periodMinutes);
         }
 
-        logger.info(entry.toString());
+        this.speedService.addSpeedEntry(entry);
 
-        this.speedService.addEntry(entry);
+        return new ResponseEntity<>("Speed entry added", OK);
+    }
 
-        return new ResponseEntity<>("Speed entry added", NOT_FOUND);
+    @ExceptionHandler({
+            InvalidTimestampException.class,
+            IDNotRegisteredException.class
+    })
+    public ResponseEntity<ErrorResponse> handleInvalidTimestampException(
+            StatusException exception,
+            WebRequest request
+    ) {
+        logger.error(exception.getMessage(), exception);
+        return buildErrorResponse(
+                exception.getMessage(),
+                exception.getHttpStatus()
+        );
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(
+            Exception exception,
+            WebRequest request
+    ) {
+        logger.error("Page not found");
+        return buildErrorResponse(
+                exception.getMessage(),
+                NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUncaughtException(
             Exception exception,
             WebRequest request
     ) {
-        logger.error("Unknown error occurred", exception);
+        logger.error("An error occurred while processing the request", exception);
         return buildErrorResponse(
-                exception.getMessage(),
-                NOT_FOUND
+                "An error occurred while processing the request",
+                INTERNAL_SERVER_ERROR
         );
     }
 

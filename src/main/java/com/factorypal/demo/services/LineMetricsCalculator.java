@@ -28,7 +28,7 @@ public class LineMetricsCalculator {
             }
 
             if(speed>this.speedHistory.get(timestamp).getMax()) {
-                this.speedHistory.get(timestamp).setMin(speed);
+                this.speedHistory.get(timestamp).setMax(speed);
             }
 
             this.speedHistory.get(timestamp).setSum(this.speedHistory.get(timestamp).getSum()+speed);
