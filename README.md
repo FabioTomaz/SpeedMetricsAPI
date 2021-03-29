@@ -6,7 +6,7 @@ Demo API to calculate in realtime the speed of factory lines.
 
 For building and running the application you need:
 
-- [JDK 1.11](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- [JDK 1.11](https://www.oracle.com/pt/java/technologies/javase-jdk11-downloads.html)
 - [Maven 3](https://maven.apache.org)
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
