@@ -49,22 +49,6 @@ class OperationsTest {
     }
 
     @Test
-    void getTimestampIntervalTest() {
-//        Timestamp[] expected = new Timestamp[]{
-//                Timestamp.valueOf(this.localDate.minus(60, ChronoUnit.MINUTES)),
-//                Timestamp.valueOf(this.localDate)
-//        };
-//
-//        assertEquals(
-//                expected,
-//                Operations.getTimestampInterval(
-//                        Timestamp.valueOf(this.localDate),
-//                        60
-//                )
-//        );
-    }
-
-    @Test
     void truncateTimestampTest() {
         Calendar cal1 = Calendar.getInstance(); // locale-specific
         cal1.set(Calendar.YEAR, 2021);
