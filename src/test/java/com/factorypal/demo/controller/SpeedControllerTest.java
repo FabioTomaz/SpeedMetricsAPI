@@ -46,9 +46,6 @@ public class SpeedControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @MockBean
-    private SpeedService speedService;
-
     @Before
     public void setUp() {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();

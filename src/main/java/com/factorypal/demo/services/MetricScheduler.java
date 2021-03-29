@@ -1,11 +1,18 @@
 package com.factorypal.demo.services;
 
-import java.util.TimerTask;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-public class MetricScheduler extends TimerTask {
+import javax.annotation.Resource;
 
-    @Override
-    public void run() {
+@Component("metricScheduler")
+public class MetricScheduler {
 
+    @Resource(name = "speedService")
+    SpeedService speedService;
+
+    @Scheduled(cron = "0 * * * * *")
+    public void clearEntries() {
+        this.speedService.cleanEntries();
     }
 }

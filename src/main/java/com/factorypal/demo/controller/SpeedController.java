@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.List;
@@ -35,11 +35,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class SpeedController {
 
-    public static final String TRACE = "trace";
-
     private final Logger logger = LoggerFactory.getLogger(SpeedMertricsServiceApplication.class);
-
-    private SpeedService speedService;
 
     @Value("${appconf.periodMinutes}")
     private int periodMinutes;
@@ -47,10 +43,9 @@ public class SpeedController {
     @Value("#{'${appconf.ids}'.split(',')}")
     private List<Long> knownIds;
 
-    @PostConstruct
-    public void init() {
-        this.speedService = new SpeedService(periodMinutes);
-    }
+    @Resource(name = "speedService")
+    SpeedService speedService;
+
 
     @GetMapping("/metrics")
     public ResponseEntity<List<LineMetrics>> getMetrics() throws Exception {

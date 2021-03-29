@@ -3,6 +3,7 @@ package com.factorypal.demo.conf;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Min;
@@ -11,6 +12,7 @@ import java.util.List;
 @Configuration
 @PropertySource("classpath:configprops.properties")
 @ConfigurationProperties(prefix = "appconf")
+@EnableScheduling
 @Validated
 public class ConfigProperties {
 
