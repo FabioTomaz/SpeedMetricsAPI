@@ -11,7 +11,7 @@ public class StatusException extends RuntimeException {
         this.httpStatus = status;
     }
 
-    public StatusException( HttpStatus status) {
+    public StatusException(HttpStatus status) {
         super();
         this.httpStatus = status;
     }

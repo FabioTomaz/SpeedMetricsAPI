@@ -1,6 +1,5 @@
 package com.factorypal.demo.controller;
 
-import com.factorypal.demo.SpeedMertricsServiceApplication;
 import com.factorypal.demo.exceptions.IDNotRegisteredException;
 import com.factorypal.demo.exceptions.InvalidTimestampException;
 import com.factorypal.demo.exceptions.StatusException;
@@ -35,7 +34,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class SpeedController {
 
-    private final Logger logger = LoggerFactory.getLogger(SpeedMertricsServiceApplication.class);
+    private final Logger logger = LoggerFactory.getLogger(SpeedController.class);
 
     @Value("${appconf.periodMinutes}")
     private int periodMinutes;
